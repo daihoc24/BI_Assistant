@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # InsightPilot - AI Business Intelligence Assistant
 
 Portfolio demo cho một Business Manager của doanh nghiệp e-commerce giả lập. Ứng dụng có dashboard KPI, breakdown theo kênh/sản phẩm và AI assistant fallback dựa trên cùng lớp analytics. Dữ liệu seed được khởi tạo một lần vào SQLite cục bộ (`data/insightpilot.db`, không commit).
@@ -50,3 +51,6 @@ Tóm tắt nhanh:
 ## Hạn chế bản đầu
 
 Dữ liệu demo là seed data bất biến được lưu SQLite cục bộ. Database này phù hợp cho demo một instance; khi triển khai nhiều instance, thay bằng PostgreSQL managed qua cùng repository interface.
+=======
+# BI_Assistant
+>>>>>>> aeff0d97e20d550568328dd79d69039cc887756c
