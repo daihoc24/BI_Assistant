@@ -3,6 +3,7 @@ node_modules
 .git
 .npm-cache
 aidlc-docs
+aws-aidlc-rule-details
 data
 .env
 .env.local
