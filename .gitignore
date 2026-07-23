@@ -10,7 +10,7 @@ coverage/
 *.sqlite
 *.sqlite3
 *.db-journal
-data/
+/data/
 .agents/
 .codex/
 aidlc-docs/
