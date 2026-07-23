@@ -13,3 +13,5 @@ coverage/
 data/
 .agents/
 .codex/
+aidlc-docs/
+aws-aidlc-rule-details/

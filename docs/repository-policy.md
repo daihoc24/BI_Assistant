@@ -30,6 +30,7 @@ Các file local/runtime không được push:
 - `coverage/`: output test coverage nếu có.
 - `*.log`: file log local.
 - `.agents/`, `.codex/`: metadata/tooling local của môi trường làm việc.
+- `aidlc-docs/`, `aws-aidlc-rule-details/`: tài liệu/quy trình AI-DLC sinh ra trong quá trình làm việc, không phải source product cần đưa lên portfolio repo.
 
 ## Lưu ý về database
 
