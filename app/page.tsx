@@ -16,6 +16,51 @@ const insightPrompts = [
   "Kế hoạch tăng trưởng 90 ngày?"
 ];
 
+const channelLabels = {
+  Website: "Website",
+  Marketplace: "Sàn TMĐT",
+  Social: "Mạng xã hội",
+  Email: "Email",
+  Affiliate: "Tiếp thị liên kết"
+} as const;
+
+const segmentLabels = {
+  New: "Khách mới",
+  Returning: "Khách quay lại",
+  VIP: "Khách VIP",
+  "At Risk": "Có nguy cơ rời bỏ"
+} as const;
+
+const riskLabels = {
+  Low: "Thấp",
+  Medium: "Trung bình",
+  High: "Cao"
+} as const;
+
+const campaignLabels = {
+  "Search Always On": "Tìm kiếm thường xuyên",
+  "Marketplace Mega Day": "Siêu sale sàn TMĐT",
+  "Social Short Video": "Video ngắn mạng xã hội",
+  "VIP Email Drop": "Email ưu đãi VIP",
+  "Creator Affiliate Push": "Đẩy bán qua creator"
+} as const;
+
+function displayChannel(name: string) {
+  return channelLabels[name as keyof typeof channelLabels] ?? name;
+}
+
+function displaySegment(name: string) {
+  return segmentLabels[name as keyof typeof segmentLabels] ?? name;
+}
+
+function displayRisk(name: string) {
+  return riskLabels[name as keyof typeof riskLabels] ?? name;
+}
+
+function displayCampaign(name: string) {
+  return campaignLabels[name as keyof typeof campaignLabels] ?? name;
+}
+
 type ConversationItem = { question: string; response: InsightResponse };
 
 function KpiCard({ kpi }: { kpi: Kpi }) {
@@ -44,7 +89,7 @@ function ChatExchange({ item, onFollowUp, disabled }: { item: ConversationItem; 
         <div className="message-bubble assistant-bubble">
           <div className="message-meta">
             <span>InsightPilot</span>
-            <span>{response.source === "fallback" ? "Phân tích nội bộ" : "AI live"}</span>
+            <span>{response.source === "fallback" ? "Phân tích nội bộ" : "AI trực tiếp"}</span>
           </div>
           {response.insightType && <div className="insight-type">{response.insightType}</div>}
           <p>{response.answer}</p>
@@ -131,11 +176,11 @@ export default function Home() {
     <main>
       <header className="hero">
         <div>
-          <p className="eyebrow">AI BUSINESS INTELLIGENCE</p>
+          <p className="eyebrow">TRỢ LÝ PHÂN TÍCH KINH DOANH</p>
           <h1>InsightPilot</h1>
           <p>Biến dữ liệu bán lẻ thành quyết định có căn cứ.</p>
         </div>
-        <span className="badge">Demo mode · Không cần API key</span>
+        <span className="badge">Chế độ demo · Không cần API key</span>
       </header>
 
       {error && (
@@ -174,7 +219,7 @@ export default function Home() {
               <h2>Hiệu quả kênh bán</h2>
               {dashboard.channelDiagnostics.map(item => (
                 <div className="row diagnostic-row" key={item.name}>
-                  <span>{item.name}<small>CR {(item.conversionRate * 100).toFixed(2)}% · CAC {money.format(item.cac)}</small></span>
+                  <span>{displayChannel(item.name)}<small>Chuyển đổi {(item.conversionRate * 100).toFixed(2)}% · Chi phí/đơn {money.format(item.cac)}</small></span>
                   <strong>{money.format(item.revenue)}</strong>
                 </div>
               ))}
@@ -186,7 +231,7 @@ export default function Home() {
               <h2>Sản phẩm dẫn đầu</h2>
               {dashboard.productRisks.slice(0, 5).map((item, index) => (
                 <div className="row" key={item.name}>
-                  <span><em>0{index + 1}</em>{item.name}<small>Tồn {item.stock} · Return {(item.returnRate * 100).toFixed(1)}% · Risk {item.risk}</small></span>
+                  <span><em>0{index + 1}</em>{item.name}<small>Tồn {item.stock} · Trả hàng {(item.returnRate * 100).toFixed(1)}% · Rủi ro {displayRisk(item.risk)}</small></span>
                   <strong>{money.format(item.revenue)}</strong>
                 </div>
               ))}
@@ -202,9 +247,9 @@ export default function Home() {
             <article className="assistant">
               <div className="assistant-heading">
                 <div>
-                  <p className="eyebrow">ASK INSIGHTPILOT</p>
+                  <p className="eyebrow">HỎI INSIGHTPILOT</p>
                   <h2>Trợ lý phân tích dữ liệu</h2>
-                  <p>Hỏi doanh thu, kênh, campaign, tồn kho, phân khúc khách hàng và nhận câu trả lời có bằng chứng.</p>
+                  <p>Hỏi doanh thu, kênh bán, chiến dịch, tồn kho, phân khúc khách hàng và nhận câu trả lời có bằng chứng.</p>
                 </div>
                 {history.length > 0 && (
                   <button className="clear-history" onClick={() => setHistory([])} data-testid="assistant-clear-history-button">Xóa</button>
@@ -256,16 +301,16 @@ export default function Home() {
               <h2>Phân khúc khách hàng</h2>
               {dashboard.segmentDiagnostics.map(item => (
                 <div className="row diagnostic-row" key={item.name}>
-                  <span>{item.name}<small>{item.customers} khách · AOV {money.format(item.aov)} · Return {(item.returnRate * 100).toFixed(1)}%</small></span>
+                  <span>{displaySegment(item.name)}<small>{item.customers} khách · Giá trị đơn TB {money.format(item.aov)} · Trả hàng {(item.returnRate * 100).toFixed(1)}%</small></span>
                   <strong>{money.format(item.revenue)}</strong>
                 </div>
               ))}
             </article>
             <article className="panel">
-              <h2>Hiệu quả campaign</h2>
+              <h2>Hiệu quả chiến dịch</h2>
               {dashboard.campaignDiagnostics.map(item => (
                 <div className="row diagnostic-row" key={item.name}>
-                  <span>{item.name}<small>{item.channel} · CPC {money.format(item.cpc)} · ROAS {item.roas.toFixed(2)}x</small></span>
+                  <span>{displayCampaign(item.name)}<small>{displayChannel(item.channel)} · Chi phí/click {money.format(item.cpc)} · Hiệu quả quảng cáo {item.roas.toFixed(2)}x</small></span>
                   <strong>{money.format(item.attributedRevenue)}</strong>
                 </div>
               ))}
