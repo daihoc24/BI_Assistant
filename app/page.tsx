@@ -9,7 +9,7 @@ const insightPrompts = [
   "Nếu là CEO, tôi nên quan tâm điều gì?",
   "Doanh thu giảm do đơn hay AOV?",
   "Sản phẩm nào nên quảng cáo?",
-  "Campaign nào nên dừng?",
+  "Chiến dịch nào nên dừng?",
   "Khách hàng nào nên chăm sóc?",
   "Ai là 10 khách hàng giá trị nhất?",
   "Nếu tăng giá sản phẩm 10% thì sao?",
@@ -45,6 +45,28 @@ const campaignLabels = {
   "Creator Affiliate Push": "Đẩy bán qua creator"
 } as const;
 
+const insightTypeLabels: Record<string, string> = {
+  "Channel diagnostic": "Chẩn đoán kênh bán",
+  "Product and operations risk": "Rủi ro sản phẩm và vận hành",
+  "Customer segment analysis": "Phân tích phân khúc khách hàng",
+  "Campaign efficiency": "Hiệu quả chiến dịch",
+  "Revenue health": "Sức khỏe doanh thu",
+  "Anomaly scan": "Quét tín hiệu bất thường",
+  "Contribution profit": "Lợi nhuận đóng góp",
+  "Cohort and retention": "Cohort và giữ chân khách hàng",
+  "Executive recommendation": "Đề xuất điều hành",
+  "Forecast": "Dự báo doanh thu",
+  "What-if scenario": "Kịch bản giả định",
+  "Root cause ranking": "Xếp hạng nguyên nhân gốc",
+  "Data quality": "Chất lượng dữ liệu",
+  "360 business review": "Tổng quan kinh doanh 360",
+  "Best versus worst comparison": "So sánh tốt và yếu",
+  "Decision support": "Hỗ trợ ra quyết định",
+  "Customer intelligence": "Phân tích khách hàng",
+  "Customer churn": "Nguy cơ khách hàng rời bỏ",
+  "Phân tích kịch bản what-if": "Phân tích kịch bản giả định"
+};
+
 function displayChannel(name: string) {
   return channelLabels[name as keyof typeof channelLabels] ?? name;
 }
@@ -59,6 +81,10 @@ function displayRisk(name: string) {
 
 function displayCampaign(name: string) {
   return campaignLabels[name as keyof typeof campaignLabels] ?? name;
+}
+
+function displayInsightType(name: string) {
+  return insightTypeLabels[name] ?? name;
 }
 
 type ConversationItem = { question: string; response: InsightResponse };
@@ -91,7 +117,7 @@ function ChatExchange({ item, onFollowUp, disabled }: { item: ConversationItem; 
             <span>InsightPilot</span>
             <span>{response.source === "fallback" ? "Phân tích nội bộ" : "AI trực tiếp"}</span>
           </div>
-          {response.insightType && <div className="insight-type">{response.insightType}</div>}
+          {response.insightType && <div className="insight-type">{displayInsightType(response.insightType)}</div>}
           <p>{response.answer}</p>
           <div className="insight-grid">
             <section>

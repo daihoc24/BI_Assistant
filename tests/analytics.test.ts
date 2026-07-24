@@ -87,6 +87,8 @@ describe("analytics", () => {
   it("supports CEO-level advanced analytics from the expanded question bank", () => {
     expect(fallbackInsight("Hãy phân tích nguyên nhân doanh thu giảm theo từng cấp độ.").insightType).toBe("Phân tích nguyên nhân nhiều tầng");
     expect(fallbackInsight("Campaign nào hoạt động kém hơn trung bình?").insightType).toBe("So sánh và benchmark");
+    expect(fallbackInsight("Chiến dịch nào đang chạy tốt?").insightType).toBe("Hiệu quả chiến dịch");
+    expect(fallbackInsight("Chiến dịch nào đang chạy tốt?").evidence.some(item => item.metric.includes("Chiến dịch đang chạy tốt"))).toBe(true);
     expect(fallbackInsight("Ai là 10 khách hàng có giá trị nhất?").insightType).toBe("Customer intelligence");
     expect(fallbackInsight("Có dấu hiệu khách hàng rời bỏ không?").insightType).toBe("Customer churn");
     expect(fallbackInsight("Tại sao conversion rate giảm?").insightType).toBe("Tối ưu bán hàng");

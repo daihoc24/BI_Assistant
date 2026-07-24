@@ -123,25 +123,34 @@ function campaignContext(question: string): InsightContext {
   const worstRoas = [...campaigns].sort((a, b) => a.roas - b.roas)[0];
   const bestRoas = campaigns[0];
   const mentionedChannel = dashboard.channelDiagnostics.find(channel => normalized.includes(normalizeQuestion(channel.name)));
-  const target = mentionedChannel ? campaigns.find(campaign => campaign.channel === mentionedChannel.name) ?? worstRoas : worstRoas;
+  const asksForBest = normalized.includes("tot") || normalized.includes("hieu qua") || normalized.includes("dang chay") || normalized.includes("nen tang") || normalized.includes("scale");
+  const target = mentionedChannel ? campaigns.find(campaign => campaign.channel === mentionedChannel.name) ?? bestRoas : asksForBest ? bestRoas : worstRoas;
   return {
-    type: "Campaign efficiency",
-    summary: "Campaign cần được đánh giá bằng ROAS, CPC, CAC và tác động kênh. Doanh thu cao chưa chắc tốt nếu spend đang ăn hết hiệu quả.",
+    type: "Hiệu quả chiến dịch",
+    summary: asksForBest
+      ? `${target.name} đang là chiến dịch chạy tốt nhất theo ROAS hiện tại. Vẫn nên đọc cùng CPC, doanh thu gán kênh và hiệu quả chuyển đổi trước khi tăng ngân sách.`
+      : "Chiến dịch cần được đánh giá bằng ROAS, CPC, CAC và tác động kênh. Doanh thu cao chưa chắc tốt nếu chi phí quảng cáo đang ăn hết hiệu quả.",
     evidence: [
-      evidence(`Campaign cần soi: ${target.name}`, `${target.roas.toFixed(2)}x ROAS`, `${target.channel}, spend ${formatMoney(target.spend)}, CPC ${formatMoney(target.cpc)}`),
-      evidence("Campaign hiệu quả nhất", `${bestRoas.name}: ${bestRoas.roas.toFixed(2)}x ROAS`, `${bestRoas.channel}, revenue gán kênh ${formatMoney(bestRoas.attributedRevenue)}`),
+      evidence(`${asksForBest ? "Chiến dịch đang chạy tốt" : "Chiến dịch cần soi"}: ${target.name}`, `${target.roas.toFixed(2)}x ROAS`, `${target.channel}, chi phí ${formatMoney(target.spend)}, CPC ${formatMoney(target.cpc)}`),
+      evidence("Chiến dịch hiệu quả nhất", `${bestRoas.name}: ${bestRoas.roas.toFixed(2)}x ROAS`, `${bestRoas.channel}, doanh thu gán kênh ${formatMoney(bestRoas.attributedRevenue)}`),
       ...dashboard.channelDiagnostics
         .filter(channel => !mentionedChannel || channel.name === mentionedChannel.name)
         .slice(0, 2)
         .map(channel => evidence(`Kênh ${channel.name}`, formatMoney(channel.revenue), `CR ${formatPercent(channel.conversionRate)}, CAC ${formatMoney(channel.cac)}, AOV ${formatMoney(channel.aov)}`))
     ],
-    actions: [
-      `Giảm scale của ${target.name} cho đến khi CPC/CAC cải thiện.`,
-      `Mượn creative hoặc offer từ ${bestRoas.name} để test lại kênh yếu.`,
-      "Đánh giá campaign bằng ROAS và CAC, không chỉ doanh thu."
-    ],
+    actions: asksForBest
+      ? [
+        `Tăng thử ngân sách nhỏ cho ${target.name} nếu ROAS và CAC vẫn ổn định.`,
+        `Dùng offer/creative của ${target.name} làm chuẩn so sánh cho chiến dịch yếu hơn.`,
+        "Theo dõi ROAS, CAC và contribution profit sau khi tăng ngân sách."
+      ]
+      : [
+        `Giảm scale của ${target.name} cho đến khi CPC/CAC cải thiện.`,
+        `Mượn creative hoặc offer từ ${bestRoas.name} để test lại kênh yếu.`,
+        "Đánh giá chiến dịch bằng ROAS và CAC, không chỉ doanh thu."
+      ],
     confidence: "Trung bình",
-    followUps: ["Campaign nào nên giảm ngân sách?", "Có nên chuyển spend không?", "Campaign nào ROAS tốt nhất?"]
+    followUps: ["Chiến dịch nào nên giảm ngân sách?", "Có nên chuyển ngân sách không?", "Chiến dịch nào có ROAS tốt nhất?"]
   };
 }
 
@@ -863,6 +872,7 @@ function detailedScenarioContext(question: string): InsightContext {
 
 export function buildInsightContext(question: string): InsightContext {
   const normalized = normalizeQuestion(question);
+  const mentionsCampaign = normalized.includes("campaign") || normalized.includes("chien dich") || normalized.includes("quang cao") || normalized.includes("roas") || normalized.includes("dot tien") || normalized.includes("ngan sach");
   if (normalized.includes("hom nay co gi dang chu y") || normalized.includes("xu ly ngay") || normalized.includes("cai thien mot thu") || normalized.includes("mat tien") || normalized.includes("30 giay") || normalized.includes("co van kinh doanh")) return ceoReportContext();
   if (normalized.includes("nguoi khong chuyen") || normalized.includes("ban on") || normalized.includes("mon nao") || normalized.includes("dang hot") || normalized.includes("tien dang den tu dau") || normalized.includes("dang lo")) return plainLanguageContext();
   if (normalized.includes("ceo") || normalized.includes("giam doc") || normalized.includes("bao cao gui") || normalized.includes("5 van de") || normalized.includes("5 cau") || normalized.includes("3 hanh dong")) return ceoReportContext();
@@ -873,6 +883,7 @@ export function buildInsightContext(question: string): InsightContext {
   if (normalized.includes("correlation") || normalized.includes("tuong quan") || (normalized.includes("san pham") && normalized.includes("nhom khach"))) return productCustomerCorrelationContext();
   if (normalized.includes("rui ro kinh doanh") || normalized.includes("giam 15") || normalized.includes("kha nang rui ro")) return businessRiskContext();
   if (normalized.includes("100 trieu") || normalized.includes("phan bo") || normalized.includes("cat giam chi phi marketing") || normalized.includes("giam 20% ngan sach") || normalized.includes("giam 20 ngan sach") || normalized.includes("nen dung") || (normalized.includes("roi") && !normalized.includes("roi bo"))) return marketingBudgetContext();
+  if (mentionsCampaign && !normalized.includes("kem hon trung binh") && !normalized.includes("vuot ky vong") && !normalized.includes("hieu suat marketing giua cac thang")) return campaignContext(question);
   if (normalized.includes("10 khach") || normalized.includes("gia tri nhat") || normalized.includes("mua lai") || normalized.includes("lau roi chua quay lai") || normalized.includes("giam muc chi tieu") || normalized.includes("loyalty") || normalized.includes("khach hang moi hay khach hang cu") || normalized.includes("giu chan khach hang") || normalized.includes("phan nhom khach")) return customerIntelligenceContext();
   if (normalized.includes("khach") || normalized.includes("segment") || normalized.includes("vip") || normalized.includes("returning") || normalized.includes("cham soc")) return customerContext();
   if (normalized.includes("benchmark") || normalized.includes("quy nay") || normalized.includes("quy truoc") || normalized.includes("vuot ky vong") || normalized.includes("kem hon trung binh") || normalized.includes("hieu suat marketing giua cac thang") || normalized.includes("ty le tang truong tot nhat")) return benchmarkContext();
@@ -898,7 +909,7 @@ export function buildInsightContext(question: string): InsightContext {
   if (normalized.includes("cohort") || normalized.includes("ltv") || normalized.includes("repeat") || normalized.includes("retention")) return cohortContext();
   if (normalized.includes("nen lam gi") || normalized.includes("uu tien") || normalized.includes("recommend") || normalized.includes("de xuat")) return recommendationContext();
   if (normalized.includes("driver") || normalized.includes("do don") || normalized.includes("aov")) return driverContext();
-  if (normalized.includes("campaign") || normalized.includes("roas") || normalized.includes("cac") || normalized.includes("dot tien") || normalized.includes("ngan sach")) return campaignContext(question);
+  if (mentionsCampaign || normalized.includes("cac")) return campaignContext(question);
   if (normalized.includes("khach") || normalized.includes("segment") || normalized.includes("vip") || normalized.includes("returning")) return customerContext();
   if (normalized.includes("san pham") || normalized.includes("product") || normalized.includes("ton kho") || normalized.includes("return")) return productContext();
   return channelContext(question) ?? revenueContext();

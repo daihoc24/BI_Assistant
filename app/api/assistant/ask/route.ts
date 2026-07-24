@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fallbackInsight } from "../../../../lib/insight";
 import { generateGroundedSummary, isAiConfigured } from "../../../../lib/ai-provider";
+import { localizeInsightResponse } from "../../../../lib/localize";
 import { allowRequest, askSchema, log, requestId } from "../../../../lib/security";
 
 export async function POST(request: NextRequest) {
@@ -14,9 +15,10 @@ export async function POST(request: NextRequest) {
       try {
         response.answer = await generateGroundedSummary(parsed.data.question, response.evidence, response.actions);
         response.source = "llm";
-      } catch { log("warn", "ai_provider_fallback", { requestId: id }); }
+        response.limitations = undefined;
+      } catch (error) { log("warn", "ai_provider_fallback", { requestId: id, error: error instanceof Error ? error.message : "Unknown AI provider error" }); }
     }
     log("info", "assistant_answered", { requestId: id, source: response.source });
-    return NextResponse.json(response, { headers: { "X-Request-ID": id } });
+    return NextResponse.json(localizeInsightResponse(response), { headers: { "X-Request-ID": id } });
   } catch { log("error", "assistant_failed", { requestId: id }); return NextResponse.json({ error: "Không thể phân tích yêu cầu lúc này. Vui lòng thử lại.", requestId: id }, { status: 500 }); }
 }
